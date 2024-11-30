@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Expanded(
             child: GridView.builder(
-              physics: FixedExtentScrollPhysics(),
+              // physics: FixedExtentScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 // crossAxisSpacing: 8,
@@ -52,7 +52,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             IconButton(
                               onPressed: () {
                                 setState(() {
-                                  cartList.add(productList[index]);
+                                  try {
+                                    cartList.firstWhere((element) =>
+                                        element.id == productList[index].id);
+                                    var snackBar = SnackBar(
+                                      content:
+                                          Text("Already Added to the Cart"),
+                                      duration: Duration(milliseconds: 400),
+                                    );
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+                                  } catch (e) {
+                                    cartList.add(productList[index]);
+                                  }
                                 });
                               },
                               icon: Icon(Icons.shopping_cart),
@@ -79,11 +91,21 @@ class _HomeScreenState extends State<HomeScreen> {
               color: buttonColor,
               child: Text("Got to Next Page"),
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => CartScreen(cartList: cartList),
-                  ),
-                );
+                if (cartList.isNotEmpty) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CartScreen(cartList: cartList),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("No Product Selected!!!"),
+                      duration: Duration(milliseconds: 400),
+                    ),
+                  );
+                }
+
                 // Navigator.of(context).pushNamed("/cartScreen");
               },
             ),
